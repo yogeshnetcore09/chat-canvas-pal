@@ -4,7 +4,8 @@ import { cn } from "@/lib/utils";
 import L1Nav from "@/components/campaigns/L1Nav";
 import TopNav from "@/components/campaigns/TopNav";
 import PageHeader from "@/components/campaigns/PageHeader";
-import SegmentTable from "@/components/campaigns/SegmentTable";
+import SegmentTable, { WarehouseSegmentTable } from "@/components/campaigns/SegmentTable";
+import TabBar from "@/components/campaigns/TabBar";
 import SegmentSuggestions from "@/components/campaigns/SegmentSuggestions";
 import Pagination from "@/components/campaigns/Pagination";
 import ChatInterface from "@/components/ChatInterface";
@@ -83,6 +84,8 @@ export default function AudienceSegments() {
   // segment" opens the SQL editor instead.
   const [blankCreationOpen, setBlankCreationOpen] = useState(false);
   const [warehouseOpen, setWarehouseOpen] = useState(false);
+  // Listing tab: 0 = Netcore segments, 1 = Warehouse segments.
+  const [segmentTab, setSegmentTab] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
   // The route state already turned into a table row — see the effect below.
@@ -213,13 +216,27 @@ export default function AudienceSegments() {
               <SegmentSuggestions onSelect={openSegmentAgent} />
             </div>
 
-            <div className="mt-4">
-              <SegmentTable extra={createdSegments} />
+            <div className="mt-5 border-b border-[#DDE2EE]">
+              <TabBar
+                tabs={[{ label: "Netcore segments" }, { label: "Warehouse segments" }]}
+                active={segmentTab}
+                onChange={setSegmentTab}
+              />
             </div>
 
-            <div className="mt-4 pb-8">
-              <Pagination unitLabel="segments" />
+            <div className={cn("mt-4", segmentTab === 1 && "pb-8")}>
+              {segmentTab === 0 ? (
+                <SegmentTable extra={createdSegments} />
+              ) : (
+                <WarehouseSegmentTable />
+              )}
             </div>
+
+            {segmentTab === 0 && (
+              <div className="mt-4 pb-8">
+                <Pagination unitLabel="segments" />
+              </div>
+            )}
           </div>
 
           {/* Co-marketer chat — docked third column */}

@@ -105,3 +105,36 @@ export const segments: Segment[] = [
     webPush: 22,
   },
 ];
+
+/** A segment built from a SQL query on the customer's data warehouse. */
+export interface WarehouseSegment {
+  id: number;
+  name: string;
+  createdOn: string;
+  refreshedOn: string;
+  userCount: number;
+}
+
+export const warehouseSegments: WarehouseSegment[] = [
+  {
+    id: 912,
+    name: "Renewals due in 90 days — high engagement",
+    createdOn: "Aug 12, 2026 10:05 AM",
+    refreshedOn: "Aug 13, 2026 01:39 AM",
+    userCount: 4812,
+  },
+  {
+    id: 911,
+    name: "Lapsed enterprise accounts — no login in 30 days",
+    createdOn: "Aug 10, 2026 04:47 PM",
+    refreshedOn: "Aug 13, 2026 01:39 AM",
+    userCount: 1376,
+  },
+  {
+    id: 910,
+    name: "High LTV customers — top 10% by revenue",
+    createdOn: "Aug 06, 2026 11:20 AM",
+    refreshedOn: "Aug 12, 2026 01:39 AM",
+    userCount: 23540,
+  },
+];

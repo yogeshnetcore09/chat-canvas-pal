@@ -12,11 +12,22 @@ const pad = (n: number) => String(n).padStart(2, "0");
 export default function TabBar({
   compact = false,
   tabs = defaultTabs,
+  active: activeProp,
+  onChange,
 }: {
   compact?: boolean;
-  tabs?: { label: string; count: number }[];
+  /** Tabs without a count render the bare label. */
+  tabs?: { label: string; count?: number }[];
+  /** Pass to control the selected tab from outside (e.g. to swap content). */
+  active?: number;
+  onChange?: (index: number) => void;
 }) {
-  const [active, setActive] = useState(0);
+  const [activeState, setActiveState] = useState(0);
+  const active = activeProp ?? activeState;
+  const setActive = (i: number) => {
+    setActiveState(i);
+    onChange?.(i);
+  };
   const scroller = useRef<HTMLDivElement>(null);
 
   const scroll = (dir: -1 | 1) =>
@@ -53,7 +64,8 @@ export default function TabBar({
               <span
                 className={isActive ? "font-bold text-[#17173A]" : "font-medium text-[#6F6F8D]"}
               >
-                {tab.label} ({pad(tab.count)})
+                {tab.label}
+                {tab.count !== undefined && ` (${pad(tab.count)})`}
               </span>
               {isActive && (
                 <span className="absolute inset-x-0 bottom-0 h-[3px] rounded-[1.5px] bg-[#17173A]" />
