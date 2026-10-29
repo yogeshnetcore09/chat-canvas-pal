@@ -14,7 +14,9 @@ import SegmentCreationOverlay, {
 } from "@/components/campaigns/segment-creation/SegmentCreationOverlay";
 import { marketingAgents } from "@/data/agents";
 import { segments as storedSegments, type Segment } from "@/components/campaigns/segments.data";
+import WarehouseSegmentDialog from "@/components/campaigns/segment-creation/WarehouseSegmentDialog";
 import { toast } from "sonner";
+import { Database, Users } from "lucide-react";
 
 function formatSegmentStamp(d = new Date()) {
   const date = d.toLocaleDateString("en-US", {
@@ -77,6 +79,10 @@ export default function AudienceSegments() {
   // Segments saved from the canvas this session — they head the table, above the
   // stored rows, so the user lands back on the thing they just made.
   const [createdSegments, setCreatedSegments] = useState<Segment[]>([]);
+  // Create → "Netcore segment" opens the creation canvas blank; "Warehouse
+  // segment" opens the SQL editor instead.
+  const [blankCreationOpen, setBlankCreationOpen] = useState(false);
+  const [warehouseOpen, setWarehouseOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   // The route state already turned into a table row — see the effect below.
@@ -185,6 +191,20 @@ export default function AudienceSegments() {
               ctaLabel="Create"
               showCtaChevron={false}
               showCtaAiIcon
+              ctaOptions={[
+                {
+                  label: "Netcore segment",
+                  description: "Build with rules on your Netcore data",
+                  icon: Users,
+                  onSelect: () => setBlankCreationOpen(true),
+                },
+                {
+                  label: "Warehouse segment",
+                  description: "Build with a SQL query on your data warehouse",
+                  icon: Database,
+                  onSelect: () => setWarehouseOpen(true),
+                },
+              ]}
             />
 
             {/* Segments has no status tabs and no table-properties toolbar —
@@ -247,15 +267,18 @@ export default function AudienceSegments() {
           • From "Review segment" in the page-level chat: opens straight onto
             that card's rules, with the thread still docked underneath. */}
       <SegmentCreationOverlay
-        open={reviewSegment !== null || creationPrompt !== undefined}
+        open={reviewSegment !== null || creationPrompt !== undefined || blankCreationOpen}
         segment={reviewSegment}
         initialPrompt={creationPrompt}
         onSaved={handleSegmentSaved}
         onClose={() => {
           setReviewSegment(null);
           setCreationPrompt(undefined);
+          setBlankCreationOpen(false);
         }}
       />
+
+      <WarehouseSegmentDialog open={warehouseOpen} onOpenChange={setWarehouseOpen} />
     </div>
   );
 }
