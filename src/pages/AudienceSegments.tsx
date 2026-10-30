@@ -14,7 +14,12 @@ import SegmentCreationOverlay, {
   type ReviewSegmentContext,
 } from "@/components/campaigns/segment-creation/SegmentCreationOverlay";
 import { marketingAgents } from "@/data/agents";
-import { segments as storedSegments, type Segment } from "@/components/campaigns/segments.data";
+import {
+  segments as storedSegments,
+  warehouseSegments as storedWarehouseSegments,
+  type Segment,
+  type WarehouseSegment,
+} from "@/components/campaigns/segments.data";
 import WarehouseSegmentDialog from "@/components/campaigns/segment-creation/WarehouseSegmentDialog";
 import { toast } from "sonner";
 import { Database, Users } from "lucide-react";
@@ -86,6 +91,7 @@ export default function AudienceSegments() {
   const [warehouseOpen, setWarehouseOpen] = useState(false);
   // Listing tab: 0 = Netcore segments, 1 = Warehouse segments.
   const [segmentTab, setSegmentTab] = useState(0);
+  const [createdWarehouseSegments, setCreatedWarehouseSegments] = useState<WarehouseSegment[]>([]);
   const location = useLocation();
   const navigate = useNavigate();
   // The route state already turned into a table row — see the effect below.
@@ -130,6 +136,29 @@ export default function AudienceSegments() {
     setCreatedSegments((prev) => [toTableSegment(saved, prev), ...prev]);
     toast.success("Segment created successfully", {
       description: `${saved.name} · ${saved.count} contacts`,
+    });
+  };
+
+  /**
+   * SAVE in the warehouse SQL dialog — the new segment heads the Warehouse
+   * segments tab, which is brought forward so the user sees it land.
+   */
+  const handleWarehouseSegmentSaved = (saved: { name: string; userCount: number }) => {
+    const stamp = formatSegmentStamp();
+    setCreatedWarehouseSegments((prev) => [
+      {
+        id:
+          Math.max(0, ...storedWarehouseSegments.map((s) => s.id), ...prev.map((s) => s.id)) + 1,
+        name: saved.name,
+        createdOn: stamp,
+        refreshedOn: stamp,
+        userCount: saved.userCount,
+      },
+      ...prev,
+    ]);
+    setSegmentTab(1);
+    toast.success("Warehouse segment saved", {
+      description: `${saved.name} · ${saved.userCount.toLocaleString("en-US")} users`,
     });
   };
 
@@ -228,7 +257,7 @@ export default function AudienceSegments() {
               {segmentTab === 0 ? (
                 <SegmentTable extra={createdSegments} />
               ) : (
-                <WarehouseSegmentTable />
+                <WarehouseSegmentTable extra={createdWarehouseSegments} />
               )}
             </div>
 
@@ -295,7 +324,11 @@ export default function AudienceSegments() {
         }}
       />
 
-      <WarehouseSegmentDialog open={warehouseOpen} onOpenChange={setWarehouseOpen} />
+      <WarehouseSegmentDialog
+        open={warehouseOpen}
+        onOpenChange={setWarehouseOpen}
+        onSaved={handleWarehouseSegmentSaved}
+      />
     </div>
   );
 }

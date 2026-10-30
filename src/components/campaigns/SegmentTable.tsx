@@ -1,5 +1,10 @@
 import { Database, Filter, Info } from "lucide-react";
-import { segments, warehouseSegments, type Segment } from "./segments.data";
+import {
+  segments,
+  warehouseSegments,
+  type Segment,
+  type WarehouseSegment,
+} from "./segments.data";
 import sparkleAi from "/campaign-assets/ic-sparkle-ai.gif";
 
 /**
@@ -127,7 +132,12 @@ export default function SegmentTable({
 const WAREHOUSE_GRID = "grid-cols-[302px_1.35fr_1.35fr_1fr]";
 
 /** Audience → Segments, "Warehouse segments" tab: SQL-built audiences. */
-export function WarehouseSegmentTable() {
+export function WarehouseSegmentTable({
+  /** Warehouse segments saved this session — shown above the stored rows. */
+  extra = [],
+}: {
+  extra?: WarehouseSegment[];
+}) {
   return (
     <div className="scroll-slim overflow-x-auto rounded-lg border border-[#DDE2EE] bg-white shadow-[0px_5px_10px_0px_rgba(23,23,58,0.05)]">
       <div className="min-w-[860px]">
@@ -151,7 +161,7 @@ export function WarehouseSegmentTable() {
         </div>
 
         <div>
-          {warehouseSegments.map((s) => (
+          {[...extra, ...warehouseSegments].map((s) => (
             <div
               key={s.id}
               className={`group grid ${WAREHOUSE_GRID} min-h-[114px] items-center border-b border-[#EDF0F7] bg-white transition-colors hover:bg-[#F5F8FF]`}
